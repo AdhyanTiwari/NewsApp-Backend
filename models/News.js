@@ -1,7 +1,6 @@
 const { default: mongoose } = require("mongoose");
 
 const NewsSchema = mongoose.Schema({
-    user:mongoose.Schema.Types.ObjectId,
     source: {
         name: String
     },
@@ -10,8 +9,6 @@ const NewsSchema = mongoose.Schema({
     url: String,
     urlToImage: String,
     publishedAt: Date
-
-
 })
 
-module.exports = mongoose.model("savedNews", NewsSchema);
+module.exports = NewsSchema;

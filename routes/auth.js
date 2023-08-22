@@ -15,12 +15,13 @@ router.post("/createuser", [
         let status = false;
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ status, errors: errors.array() });
+            return res.status(400).json({ status, msg: errors.array() });
         }
         try {
             let user = await User.findOne({ email: req.body.email })
+            console.log(user);
             if (user) {
-                return res.json({ status, error: "User Already exists" })
+                return res.json({ status, msg: "User Already exists" })
             }
             const salt = await bcrypt.genSalt(10);
             const hash = await bcrypt.hash(req.body.password, salt);
@@ -28,12 +29,20 @@ router.post("/createuser", [
                 name: req.body.name,
                 email: req.body.email,
                 password: hash,
-                date: req.body.date
+                date: req.body.date,
+                saved_news: [],
+                saved_youtube:[]
             })
+            data = {
+                user: {
+                    id: user._id
+                }
+            }
+            const token = jwt.sign(data, process.env.JWT_SECRET)
             status = true;
-            res.json({ status, user })
+            res.json({ status, token })
         } catch (error) {
-            res.json({ status, error: "Someother error occured" })
+            res.json({ status, msg: "Someother error occured" })
         }
 
 
@@ -47,28 +56,28 @@ router.post("/login", [
         let status = false;
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ status, errors: errors.array() });
+            return res.status(400).json({ status, msg: errors.array() });
         }
         try {
-            let user = await User.findOne({ email: req.body.email })
-            if (!user) {
-                return res.json({ status, error: "User does not exists" })
+            let users = await User.findOne({ email: req.body.email })
+            if (!users) {
+                return res.json({ status, msg: "User does not exists" })
             }
 
-            let compare = await bcrypt.compare(req.body.password, user.password);
+            let compare = await bcrypt.compare(req.body.password, users.password);
             if (!compare) {
-                return res.json({ status, error: "Wrong credentials" })
+                return res.json({ status, msg: "Wrong credentials" })
             }
             const data = await {
                 user: {
-                    id: user._id
+                    id: users._id
                 }
             }
             const token = jwt.sign(data, process.env.JWT_SECRET)
             status = true;
             res.json({ status, token })
         } catch (error) {
-            res.json({ status, error: "Someother error occured" })
+            res.json({ status, msg: "Someother error occured" })
         }
     })
 
@@ -88,12 +97,12 @@ router.put("/changepassword", fetchUser, async (req, res) => {
         const password = req.body.password;
         const newPassword = req.body.newPassword;
         if (password === newPassword) {
-            return res.json({ status, error: "new password and old password cannot be same" })
+            return res.json({ status, msg: "new password and old password cannot be same" })
         }
         let user = await User.findOne({ _id: userId });
         const compare = await bcrypt.compare(password, user.password)
         if (!compare) {
-            return res.json({ status, error: 'wrong password' })
+            return res.json({ status, msg: 'wrong password' })
         }
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
@@ -103,7 +112,7 @@ router.put("/changepassword", fetchUser, async (req, res) => {
         res.json({ status, msg: "successfully updated" })
 
     } catch (error) {
-        return res.json({ status, error: "Internal error occured" })
+        return res.json({ status, msg: "Internal error occured" })
     }
 })
 
