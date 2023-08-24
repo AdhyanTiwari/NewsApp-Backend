@@ -24,4 +24,4 @@ const UserSchema = mongoose.Schema({
     saved_youtube:[YoutubeSchema]
 })
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = UserSchema

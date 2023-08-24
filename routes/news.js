@@ -4,7 +4,8 @@ const fetchUser = require("../middlewares/fetchuser")
 const NewsSchema = require("../models/News");
 const { default: mongoose } = require("mongoose");
 const News = mongoose.model("News", NewsSchema)
-const User = require("../models/User");
+const UserSchema = require("../models/User");
+const User= mongoose.model("User",UserSchema)
 const { json } = require("body-parser");
 
 //GET NEWS

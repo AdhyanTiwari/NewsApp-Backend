@@ -4,7 +4,8 @@ const fetchUser = require("../middlewares/fetchuser");
 const YoutubeSchema = require("../models/Youtube");
 const { default: mongoose } = require("mongoose");
 const Youtube = mongoose.model("Youtube", YoutubeSchema);
-const User = require("../models/User");
+const UserSchema = require("../models/User");
+const User=mongoose.model("User",UserSchema)
 const { json } = require("body-parser");
 
 //GET VIDEOS

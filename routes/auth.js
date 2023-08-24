@@ -1,8 +1,10 @@
 require("dotenv").config()
+const { default: mongoose } = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt")
-const User = require("../models/User");
+const UserSchema = require("../models/User");
+const User=mongoose.model("User",UserSchema);
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const fetchUser = require("../middlewares/fetchuser")

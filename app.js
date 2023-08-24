@@ -13,6 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/news", require("./routes/news"));
 app.use("/api/videos", require("./routes/youtube"));
+app.use("/api/discussion", require("./routes/discussion"));
 
 
 app.listen(5000, () => {
