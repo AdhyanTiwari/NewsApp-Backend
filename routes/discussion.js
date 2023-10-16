@@ -1,15 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const Discussion = require("../models/Discussion")
-const fetchUser = require("../middlewares/fetchuser")
+const Discussion = require("../models/Discussion");
+const fetchUser = require("../middlewares/fetchuser");
+const CommentSchema = require("../models/Comment");
+const { default: mongoose } = require("mongoose");
+const Comment = mongoose.model("Comment", CommentSchema);
 
 //GET DISCUSSIONS
-router.get("/getdiscussion", async (req, res) => {
+router.get("/getdiscussion", fetchUser, async (req, res) => {
     let status = false
     try {
-        const disscussion = await Discussion.find();
+        const discussion = await Discussion.find();
         status = true
-        res.json({ status, disscussion });
+        res.json({ status, discussion });
     } catch (error) {
         res.json({ status, msg: "some internal error occured" })
     }
@@ -17,24 +20,33 @@ router.get("/getdiscussion", async (req, res) => {
 
 //ADD DISCUSSIONS
 router.post("/add-discuss", fetchUser, async (req, res) => {
-    let status = false;
+    const id = req.user.id;
     try {
-        const videoId = req.body.videoId;
-        const discussion = await Discussion.findOne({ videoId: videoId })
-        if (discussion) {
-            status = true;
-            return res.json({ status, id: discussion._id, msg: "already exists" })
-        }
-        const newDiscussion = await Discussion.create({
-            title: req.body.title,
-            videoId: req.body.videoId,
-            likes: [],
-            comments: []
+        let find_title = false;
+        let DiscussionId = ""
+        let user = await Discussion.find()
+        user.forEach(e => {
+            if (e.title === req.body.title) {
+                find_title = true;
+                DiscussionId = e._id;
+            }
         })
-        status = true
-        res.json({ status, id: newDiscussion._id, msg: "created" })
+        if (find_title) {
+            return res.json({ status: true, id: DiscussionId })
+        }
+        let news = Discussion.create({
+            source: {
+                name: req.body.source.name
+            },
+            title: req.body.title,
+            description: req.body.description,
+            url: req.body.url,
+            urlToImage: req.body.urlToImage,
+            publishedAt: req.body.publishedAt
+        })
+        res.json({ status: true, id: news._id })
     } catch (error) {
-        res.json({ status, msg: "some internal error occured" })
+        res.json({ status: false, error: "some error occured" })
     }
 })
 
@@ -72,9 +84,23 @@ router.post("/unlike", fetchUser, async (req, res) => {
 });
 
 //ADD COMMENT
-router.post("/addcomment",fetchUser,async(req,res)=>
-{
-    
+router.post("/addcomment", fetchUser, async (req, res) => {
+    let status = false;
+    let userId = req.user.id;
+    try {
+        let comment = new Comment({
+            comment: req.body.comment,
+            user: userId
+        })
+        let discussion = await Discussion.findByIdAndUpdate(req.body.id, { $push: { comments: comment } }, { new: true });
+        if (!discussion) {
+            return res.json({ status, msg: "invalid comment request" })
+        }
+        status = true;
+        res.json({ status, msg: "successfully commented" })
+    } catch (error) {
+        res.json({ status, msg: "some internal error occured" })
+    }
 })
 
 

@@ -3,15 +3,14 @@ const CommentSchema = require("../models/Comment");
 
 
 const DiscussionSchema = mongoose.Schema({
-    title: {
-        type: String,
-        required: true
+    source: {
+        name: String
     },
-    videoId: {
-        type: String,
-        required: true,
-        unique: true
-    },
+    title: String,
+    description: String,
+    url: String,
+    urlToImage: String,
+    publishedAt: Date,
     likes: [{ type: mongoose.Schema.ObjectId, ref: "users", unique: true }],
     comments: [CommentSchema]
 })
