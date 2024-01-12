@@ -4,7 +4,7 @@ const mongoose = require("mongoose");//helps to connect and perform actions on m
 const bodyParser = require("body-parser");//middleware to access the json files in json format
 const cors = require("cors")//used to prevent the cors error 
 
-mongoose.connect('mongodb://127.0.0.1:27017/NewsDB');
+mongoose.connect(process.env.MONGO_URI);
 const app = express();
 app.use(express.json());
 app.use(cors())
